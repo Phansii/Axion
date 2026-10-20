@@ -1,2 +1,2 @@
 # Axion
-PWR
+Kwantowy challenge - KN Axion

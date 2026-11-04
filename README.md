@@ -32,4 +32,26 @@ Ciekawe, czy przy wiekszym szumie w danych dodatkowe warstwy nadal by pomagaly, 
 
 ## Wyniki
 
-Uzupelnie po eksperymencie.
+Po uruchomieniu kodu dostalem takie srednie accuracy z 3 prob:
+
+1 warstwa: 87.30%
+
+2 warstwy: 84.92%
+
+4 warstwy: 86.51%
+
+Przejscie z 1 do 2 warstw pogorszylo wynik o 2.38 pp, natomiast z 2 do 4 poprawilo go o 1.59 pp.
+
+Wnioski
+
+Hipoteza potwierdzila sie tylko czesciowo. Zakladalem, ze dwie warstwy dadza lepszy wynik niz jedna, ale okazalo sie odwrotnie. Najprostszy model osiagnal najwyzsza srednia skutecznosc.
+
+Mozliwe, ze dodatkowe parametry utrudnily trening, szczegolnie ze kazdy model mial taki sam limit optymalizacji. Nie mozna jednak stwierdzic tego na pewno na podstawie samych wynikow.
+
+Wyglada na to, ze dodawanie kolejnych warstw nie gwarantuje lepszej klasyfikacji. Zeby lepiej to sprawdzic, przydaloby sie wykonac wiecej prob i zwiekszyc liczbe iteracji treningu.
+
+Co by bylo gdyby?
+
+Gdybym zwiekszyl szum w danych, punkty z obu klas bardziej by sie mieszaly, przez co klasyfikacja moglaby byc trudniejsza.
+
+Bardziej rozbudowany model moglby wtedy mocniej dopasowywac sie do szumu w danych treningowych, zamiast uczyc sie ogolnej zaleznosci. Nie jest to jednak pewne i wymagaloby osobnego eksperymentu.

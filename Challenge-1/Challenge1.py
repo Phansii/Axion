@@ -1,67 +1,59 @@
-# Model regresji logistycznej bez wag klas osiagnie wysokie accuracy lecz niski recall class_weight='balanced' powinno podniesc recall
-# kaggle.com/datasets/mlg-ulb/creditcardfraud 
 
-
-# biblioteki
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report
+from sklearn.metrics import accuracy_score, recall_score, balanced_accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import balanced_accuracy_score
 
+# Loading data
+data = pd.read_csv("creditcard.csv")
 
-#
-# wczytywanie danych
-df = pd.read_csv("creditcard.csv")
-X = df.drop("Class", axis=1)
-y = df["Class"]
+features = data.drop("Class", axis=1)
+labels = data["Class"]
 
-# podzial na zbior treninigowy i testowy
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, stratify=y, random_state=1
+# Separating training data from test data
+train_features, test_features, train_labels, test_labels = train_test_split(
+    features, labels, test_size=0.2, stratify=labels, random_state=1
 )
-#print(f"\nwiersze treningowe = {len(X_train)}")
-#print(f"wiersze testowe = {len(X_test)}")
 
-# skalujemy dane
+# Standard scaling
 scaler = StandardScaler()
 
-X_train_scaled = X_train.copy()
-X_test_scaled = X_test.copy()
+train_features_scaled = train_features.copy()
+test_features_scaled = test_features.copy()
 
-# Dajemy scaler tylko na zbiorze treningowym
-X_train_scaled[["Time", "Amount"]] = scaler.fit_transform(
-    X_train[["Time", "Amount"]]
+# Scaling only Time and Amount
+train_features_scaled[["Time", "Amount"]] = scaler.fit_transform(
+    train_features[["Time", "Amount"]]
 )
-# samo transform na tescie
-X_test_scaled[["Time", "Amount"]] = scaler.transform(X_test[["Time", "Amount"]])
 
-#
-#
-print("test 1 model bez wag")
+test_features_scaled[["Time", "Amount"]] = scaler.transform(
+    test_features[["Time", "Amount"]]
+)
 
-model_baseline = LogisticRegression(max_iter=1000, random_state=1)
-model_baseline.fit(X_train_scaled, y_train)
+# Model without class weights
+print("Model without class weights")
 
-y_pred_baseline = model_baseline.predict(X_test_scaled)
-print(classification_report(y_test, y_pred_baseline, digits=4))
-print(
-    "Balanced Accuracy:", balanced_accuracy_score(y_test, y_pred_baseline)
-)  # dla testu 1
+baseline_model = LogisticRegression(max_iter=1000, random_state=1)
+baseline_model.fit(train_features_scaled, train_labels)
 
+baseline_predictions = baseline_model.predict(test_features_scaled)
 
-print("test 2 model z class_weight='balanced'")
+print("Accuracy:", round(100 * accuracy_score(test_labels, baseline_predictions), 2), "%")
+print("Recall:", round(100 * recall_score(test_labels, baseline_predictions), 2), "%")
+print("Balanced accuracy:", round(100 * balanced_accuracy_score(test_labels, baseline_predictions), 2), "%")
 
+# Model with balanced class weights
+print("\nModel with balanced class weights")
 
-model_balanced = LogisticRegression(
+balanced_model = LogisticRegression(
     class_weight="balanced", max_iter=1000, random_state=42
 )
-model_balanced.fit(X_train_scaled, y_train)
 
+balanced_model.fit(train_features_scaled, train_labels)
 
-y_pred_balanced = model_balanced.predict(X_test_scaled)
-print(classification_report(y_test, y_pred_balanced, digits=4))
-print(
-    "Balanced Accuracy:", balanced_accuracy_score(y_test, y_pred_balanced)
-)  # dla testu 2
+balanced_predictions = balanced_model.predict(test_features_scaled)
+
+print("Accuracy:", round(100 * accuracy_score(test_labels, balanced_predictions), 2), "%")
+print("Recall:", round(100 * recall_score(test_labels, balanced_predictions), 2), "%")
+print("Balanced accuracy:", round(100 * balanced_accuracy_score(test_labels, balanced_predictions), 2), "%")

@@ -1,30 +1,34 @@
-#wyzwanie 2
 
 import numpy as np
 
-#stan |0> i |1>
-q0 = np.array([1.0, 0.0], dtype=complex)
-q1 = np.array([0.0, 1.0], dtype=complex)
+# Quantum states
+state_0 = np.array([1.0, 0.0], dtype=complex)
+state_1 = np.array([0.0, 1.0], dtype=complex)
 
-# bramki X Z H
-X = np.array([[0, 1], 
-              [1, 0]], dtype=complex)
+# Quantum gates
+X = np.array([
+    [0, 1],
+    [1, 0]
+], dtype=complex)
 
+Z = np.array([
+    [1,  0],
+    [0, -1]
+], dtype=complex)
 
-Z = np.array([[1,  0], 
-              [0, -1]], dtype=complex)
+H = (1 / np.sqrt(2)) * np.array([
+    [1,  1],
+    [1, -1]
+], dtype=complex)
 
-H = (1.0 / np.sqrt(2)) * np.array([[1,  1], 
-                                   [1, -1]], dtype=complex)
-
-# bramka rotacji 
-def Ry(theta):
+# Rotation gate
+def ry(theta):
     return np.array([
-        [np.cos(theta / 2.0), -np.sin(theta / 2.0)],
-        [np.sin(theta / 2.0),  np.cos(theta / 2.0)]
+        [np.cos(theta / 2), -np.sin(theta / 2)],
+        [np.sin(theta / 2),  np.cos(theta / 2)]
     ], dtype=complex)
 
-# bramka cnot
+# CNOT gate
 CNOT = np.array([
     [1, 0, 0, 0],
     [0, 1, 0, 0],
@@ -32,42 +36,41 @@ CNOT = np.array([
     [0, 0, 1, 0]
 ], dtype=complex)
 
-# pomiar kwantowy
+# Quantum measurement
 def measure(state, shots=1000):
-    # prawdopodobienstwo (|amplituda|^2)
-    probs = np.abs(state) ** 2
-    
-    # nazwy wynikow
+    probabilities = np.abs(state)**2
+
     if len(state) == 2:
-        outcomes = ['0', '1']
+        outcomes = ["0", "1"]
     else:
-        outcomes = ['00', '01', '10', '11']
-    
-    # losowanie shots wiynikow
-    samples = np.random.choice(outcomes, size=shots, p=probs)
-    
-    # zliczenie
-    wyniki = {}
-    for x in outcomes:
-        ile = np.sum(samples == x)
-        if ile > 0:
-            wyniki[x] = int(ile)
-            
-    return wyniki
+        outcomes = ["00", "01", "10", "11"]
 
-# wyniki
-test1 = H @ (H @ q0)
-print("H * H |0> =", np.round(test1, 3))
-print("czy |0>?:", np.allclose(test1, q0))
+    samples = np.random.choice(outcomes, size=shots, p=probabilities)
+
+    results = {}
+    for outcome in outcomes:
+        count = np.sum(samples == outcome)
+
+        if count > 0:
+            results[outcome] = int(count)
+
+    return results
 
 
+# Test 1: H * H |0>
+test_state = H @ (H @ state_0)
 
-q0_po_H = H @ q0
+print("H * H |0> =", np.round(test_state, 3))
+print("Equal to |0>:", np.allclose(test_state, state_0))
 
-psi_start = np.kron(q0_po_H, q0)
 
-psi_bell = CNOT @ psi_start
+# Test 2: Bell state
+state_after_h = H @ state_0
+initial_state = np.kron(state_after_h, state_0)
 
-print("wektor stanu bella:", np.round(psi_bell, 3))
-wyniki_pomiaru = measure(psi_bell, shots=1000)
-print("wynik 1000 pomiarow:", wyniki_pomiaru)
+bell_state = CNOT @ initial_state
+
+print("Bell state:", np.round(bell_state, 3))
+
+measurement_results = measure(bell_state, shots=1000)
+print("Measurement results:", measurement_results)
